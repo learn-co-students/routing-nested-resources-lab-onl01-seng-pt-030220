@@ -22,12 +22,16 @@ class SongsController < ApplicationController
   end
 
   def new
+    @artist = Artist.find_by(id: params[:artist_id])
     @song = Song.new
   end
 
   def create
-    @song = Song.new(song_params)
-
+    if artist = Artist.find_by(id: params[:artist_id])
+      @song = artist.songs.build(song_params)
+    else
+      @song = Song.new(song_params)
+    end
     if @song.save
       redirect_to @song
     else

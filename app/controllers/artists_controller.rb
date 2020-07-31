@@ -1,5 +1,6 @@
 class ArtistsController < ApplicationController
   def index
+    flash[:alert]
     @artists = Artist.all
   end
 

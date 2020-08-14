@@ -1,35 +1,37 @@
 class SongsController < ApplicationController
+  before_action :find_artist, only: [:index, :show, :new, :edit, :create]
+
   def index
-    if params[:artist_id]
-      @artist = Artist.find_by(id: params[:artist_id])
-        if @artist.nil?
-          flash[:alert] = "Artist not found"
-          redirect_to artists_path
-        else
-          @songs = @artist.songs
-        end
+    if params[:artist_id] && !@artist
+      redirect_to artists_path, alert: 'Artist not found'
+    elsif @artist
+      @songs = @artist.songs
     else
       @songs = Song.all
     end
   end
 
   def show
-    if params[:artist_id]
-      @artist = Artist.find(params[:artist_id])
-      if @artist.songs.find_by(id: params[:id]).nil?
-        flash[:alert] = "Song not found"
-        redirect_to artist_songs_path(@artist)
-      else
-        @song = @artist.songs.find(params[:id])
+    if @artist
+      @song = @artist.songs.find_by_id(params[:id])
+      if @song.nil?
+        redirect_to artist_songs_path(@artist), alert: 'Song not found'
       end
     else
       @song = Song.find(params[:id])
     end
-
   end
 
   def new
-    @song = Song.new
+    if params[:artist_id]
+      unless @artist
+        redirect_to artists_path
+      else
+        @song = @artist.songs.build
+      end
+    else
+      @song = Song.new
+    end
   end
 
   def create
@@ -70,5 +72,10 @@ class SongsController < ApplicationController
   def song_params
     params.require(:song).permit(:title, :artist_name)
   end
+
+  def find_artist
+    @artist = Artist.find_by_id(params[:artist_id])
+  end
+
 end
 

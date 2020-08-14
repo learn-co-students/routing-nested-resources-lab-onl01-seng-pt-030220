@@ -40,7 +40,7 @@ class SongsController < ApplicationController
     else
       @song = Song.new(song_params)
     end
-    
+
     if @song.save
       redirect_to @song
     else
@@ -49,17 +49,16 @@ class SongsController < ApplicationController
   end
 
   def edit
-    @song = Song.find(params[:id])
+    @song = Song.find_by_id(params[:id])
   end
 
   def update
     @song = Song.find(params[:id])
-
     @song.update(song_params)
-
     if @song.save
       redirect_to @song
     else
+      flash[:errors] = @song.errors.full_messages
       render :edit
     end
   end
